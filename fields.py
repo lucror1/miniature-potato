@@ -44,12 +44,22 @@ def dragField(point_pos, point_vel, A=(3.7/2)**2*np.pi, r=6378.1e3, cd=0.3, mass
     rel_pos = point_pos - mass_pos # m
     h = np.sqrt(np.sum(rel_pos**2)) - r # m
     
-    # Calulate the density - https://www.grc.nasa.gov/www/k-12/rocket/atmosmet.html
-    temp = 15.04 - 0.00649*h # C
-    pres = 101.29 * ((temp + 273.1)/288.08)**5.256
+    # Implement piece-wise function for density based on https://www.grc.nasa.gov/www/k-12/rocket/atmosmet.html
+    # h < 11 km
+    if h < 11000:
+        temp = 15.04 - 0.00649*h # C
+        pres = 101.29 * ((temp + 273.1)/288.08)**5.256
+    # 11 km < h < 25 km
+    elif h < 25000:
+        temp = -56.46
+        pres = 22.65 * np.exp(1.73 - 0.000157*h)
+    # Zero point for drag, zero pressure sets entire density equation to zero
+    else:
+        temp = 1
+        pres = 0
+    
+    # Calculate density
     p = pres / (0.2869 * (temp + 273.1))
     
     # Calculate the force of drag (see falling sphere assignment)
     return cd * A * p * point_vel**2 / 2
-
-print(dragField(np.array([6378.1e3, 0]), np.array([10, 0])))
