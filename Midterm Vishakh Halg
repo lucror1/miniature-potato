@@ -1,0 +1,139 @@
+# import necessary modules
+import numpy as np
+import matplotlib.pyplot as plt
+
+r_earth = 6378.1e3 # m
+
+# properties of our rocket
+m_fuel_in = 395700 * 3 #kg
+m_fuselage = 25600 * 3 #0.0255 - m_fuel_in #kg
+m_payload = 1000 #kg
+
+# properties of thrust
+thrustTime = 162 #s #the time the rocket is getting thrust force directly
+dm = m_fuel_in / thrustTime #kg/s # dm/dt the fuel usage rate
+T = 7607000 * 3 #N #The thrust of the rocket
+
+m = m_fuselage + m_fuel_in + m_payload # calc. the total initial mass
+
+# define our simulation
+t = 0
+dt = 0.1 #s our time step
+# initialize variables
+pos = np.array([r_earth,0])
+vel = np.array([0,0])
+t = 0
+accel = np.array([0,0])
+# max sim length
+t_f = 4000 #s
+
+# other constants
+g = 9.8 #m/s/s
+
+# initialize lists for plotting
+x_list = [pos[0]]
+y_list = [pos[1]]
+t_list = [t]
+mass_list = [m]
+vx_list = [vel[0]]
+vy_list = [vel[1]]
+ax_list = [accel[0]]
+ay_list = [accel[1]]
+
+# drag variables
+drag = 0 # kg*m/s/s # initialize variable
+radius = 0.945 * 0.0254 / 2 # m 
+area = np.pi * radius ** 2 # cross sectional area of cone is pir^2
+dcoe = 0.3 # drag coefficient of cones
+adensity = 1.225 # kg/m^3
+
+# main function loop
+while t < t_f: # run for allotted simulation time at max
+    # force calc for when thrust is running
+    if m > (m_fuselage + m_payload):
+        #drag = (dcoe)*(area)*adensity * np.sign(v) * 0.5 * v * v
+        F = T - (m * g)# - drag # force calc.
+        m -= dm * dt
+        accel[1] = F / m
+        # acceleration based function
+        vel[1] += accel[1] * dt
+        pos[1] += vel[1] * dt
+        t += dt
+        # append to lists
+        y_list.append(pos[1])
+        vy_list.append(vel[1])
+        ay_list.append(accel[1])
+        mass_list.append(m)
+        t_list.append(t)
+    # force calc for no thrust
+    else: 
+        #drag = (dcoe)*(area)*adensity*np.sign(v)*v*v*0.5
+        F = (-m * g)# - drag
+        accel[1] = F / m
+        vel[1] += accel[1] * dt
+        pos[1] += vel[1] * dt
+        t += dt
+        y_list.append(pos[1])
+        vy_list.append(vel[1])
+        ay_list.append(accel[1])
+        mass_list.append(m)
+        t_list.append(t)
+    if pos[1] < 0:
+        break
+
+# Plot the height of the rocket
+        
+plt.plot(t_list, y_list, 'r')
+plt.plot(t_list, x_list, 'b')
+plt.xlabel('Time (s)')
+plt.ylabel('Height (m)')
+plt.title('Height of the Rocket')
+plt.show()
+
+
+G = 6.67e-11 #kg x m/s/s
+m_earth = 5.97219e24 #kg
+
+r = np.linspace(r_earth, 3 * r_earth, 5)
+theta = np.linspace(0, np.pi*2, 9)
+
+R, Theta = np.meshgrid(r, theta)
+
+# print(R)
+# print(Theta)
+
+X = R*np.cos(Theta)
+Y = R*np.sin(Theta)
+
+#define the magnitude of the arrows
+g_mag = G * m_earth / R ** 2
+
+#define directions
+gx = -g_mag * np.cos(Theta)
+gy = -g_mag * np.sin(Theta)
+# # Plot the velocity of the rocket
+
+# plt.plot(t_list, v_list, 'b')
+# plt.xlabel('Time (s)')
+# plt.ylabel('Velocity (m/s)')
+# plt.title('Y-Axis Velocity of the Rocket')
+# plt.show()
+
+# # Plot the acceleration of the rocket
+
+# plt.plot(t_list, a_list, 'g')
+# plt.xlabel('Time (s)')
+# plt.ylabel('Acceleration (m/s/s)')
+# plt.title('Y-Axis Acceleration of the Rocket')
+# plt.show()
+
+# # Plot the masses of the rocket against the time
+
+# plt.plot(t_list, mass_list)
+# plt.xlabel('Time (s)')
+# plt.ylabel('Distance (m)')
+# plt.title('Position of two particles')
+# plt.show()
+
+# print('The flight duration of the rocket was ' + str(t) + ' seconds')
+# print('The maximum height the rocket reached ' + str(max(y_list)) + ' meters')
