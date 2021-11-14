@@ -1,3 +1,6 @@
+import numpy as np
+import fields
+
 #############################################################
 # Create x and y lists to draw earth at a point             #
 # Inputs:                                                   #
@@ -44,6 +47,6 @@ def genGravityLists(r=6378.1e3, num_x_points=10, num_y_points=10, width_radius_r
     # Get the gx and gy components at each sample point
     for i in range(X.shape[0]):
         for j in range(X.shape[0]):
-            gx[i,j], gy[i,j] = f.gravityField(np.array([X[i,j], Y[i,j]]), r=r)
+            gx[i,j], gy[i,j] = fields.gravityField(np.array([X[i,j], Y[i,j]]), r=r)
     
     return X, Y, gx, gy

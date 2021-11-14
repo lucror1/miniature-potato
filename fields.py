@@ -1,3 +1,7 @@
+#Name: Paul Warner
+#Date: Oct 18, 2021
+#Assignment: Midterm Project 2
+
 import numpy as np
 
 ################################################
@@ -19,8 +23,7 @@ def gravityField(point_pos, r=6378.1e3, m=5.97219e24, G=6.67e-11, mass_pos=np.ar
     
     # Check if the point is inside the earth and return None if it is
     if xp**2 + yp**2 < r**2:
-        #return None
-        pass
+        return np.array([0,0])
     
     # Else return the actual value
     g_mag = G * m/(xp**2 + yp**2)
@@ -46,7 +49,10 @@ def dragField(point_pos, point_vel, A=(3.7/2)**2*np.pi, r=6378.1e3, cd=0.3, mass
     
     # Implement piece-wise function for density based on https://www.grc.nasa.gov/www/k-12/rocket/atmosmet.html
     # h < 11 km
-    if h < 11000:
+    if h < 0:
+        temp = 1
+        pres = 0
+    elif h < 11000:
         temp = 15.04 - 0.00649*h # C
         pres = 101.29 * ((temp + 273.1)/288.08)**5.256
     # 11 km < h < 25 km
@@ -62,4 +68,4 @@ def dragField(point_pos, point_vel, A=(3.7/2)**2*np.pi, r=6378.1e3, cd=0.3, mass
     p = pres / (0.2869 * (temp + 273.1))
     
     # Calculate the force of drag (see falling sphere assignment)
-    return cd * A * p * point_vel**2 / 2
+    return cd * A * p * point_vel[0]**2 / 2, cd * A * p * point_vel[1]**2 / 2
